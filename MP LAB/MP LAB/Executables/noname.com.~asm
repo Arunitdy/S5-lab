@@ -1,0 +1,62 @@
+MOV BX,0200H
+;Let's insert the 8-bit unsigned 10 numbers we want from 0700:0200.
+MOV BYTE PTR [bx],55h
+MOV BYTE PTR [bx+1],32H
+MOV BYTE PTR [bx+2],54H
+MOV BYTE PTR [bx+3],11H
+MOV BYTE PTR [bx+4],47H
+MOV BYTE PTR [bx+5],33H
+MOV BYTE PTR [bx+6],75H
+MOV BYTE PTR [bx+7],01H
+MOV BYTE PTR [bx+8],5FH
+MOV BYTE PTR [bx+9],23H
+
+
+org 100h             ;offset addresses of commands
+
+
+MOV BX,0200H
+MOV SI,0             ;The register to be used in the inner loop iteration
+MOV DI,0             ;The register to be used in outer loop iteration
+
+innerloop:
+
+MOV DL,[BX+SI]       ;register to hold the smallest number
+MOV AL,[BX+SI+1]     ;Gets the corresponding byte at base address 0700:0200 (indexed with SI+1)
+
+CMP AL,DL            ;If the value of the al register is greater than or equal to dl,
+JAE @IF              ;if al >= dl (cf=0) go to if block
+JB @ELSE             ;if al < dl (cf=1) go to else block
+
+@IF:                 ;if block
+MOV [BX+SI],DL       ;If al is greater than dl, there is no need to swap
+MOV [BX+SI+1],AL     ; because they are already sorted among themselves.
+INC SI               ;For iteration, increase the register by 1 (si=si+1)
+
+CMP SI,9             ;Is si equal to 9?
+JNZ innerloop        ;(zf=0) enter the inner loop
+
+LOOP outerloop       ;(zf=1) enter the outerloop
+
+@ELSE:               ;else block
+MOV [BX+SI],AL       ;values are swapped in the same regions in memory
+MOV [BX+SI+1],DL
+MOV CL,AL            ;swap for registers
+MOV AL,DL
+MOV DL,CL
+INC SI               ;increment register by 1 for iteration(si=si+1)
+
+CMP SI,9             ;Is si equal to 9?
+JNZ innerloop        ;(zf=0) enter the inner loop
+
+LOOP outerloop       ;(zf=1) enter the outerloop
+
+
+outerloop:
+INC DI               ;
+MOV SI,0             ;si is reset to be able to reorder
+CMP DI,9             ;has the loop reached the end of its step (di=9)
+JNZ innerloop        ;If di is not equal to 9, enter the inner loop and sort again
+
+HLT                  ;STOP if di=9
+

@@ -1,0 +1,84 @@
+ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT
+     NUM1 DW 01 DUP(00)
+     NUM2 DW 01 DUP(00)
+     MSG1 DB "ENTER FIRST NUMBER : $"
+     MSG2 DB 13,10,"ENTER Second NUMBER : $" 
+     MSG3 DB 13,10,"SUM IS : ","$"
+DATA ENDS
+CODE SEGMENT
+
+PRINTMSG MACRO MSG
+      MOV DX, OFFSET MSG
+      MOV AH,09H
+      INT 21H 
+ENDM  
+
+START:
+      MOV AX,DATA
+      MOV DS,AX
+
+      PRINTMSG MSG1
+
+      CALL READNUM
+      MOV NUM1,CX
+
+      PRINTMSG MSG2
+
+      CALL READNUM
+      MOV NUM2,CX
+
+      PRINTMSG MSG3
+
+      MOV AX,NUM1
+      ADD AX,NUM2
+
+      CALL DISPLAY 
+
+      MOV AH,4CH
+      INT 21H 
+
+READNUM PROC
+      MOV CX,0000H
+      MOV BX,000AH
+      
+ UP1: MOV AH,01H
+      INT 21H
+      CMP AL,0DH
+      JZ STOP1
+      SUB AL,30H
+      MOV AH,00H
+      PUSH AX
+      MOV AX,CX
+      MUL BX
+      MOV CX,AX
+      POP AX
+      ADD CX,AX
+      JMP UP1
+
+STOP1: RET
+READNUM ENDP
+
+DISPLAY PROC
+      MOV CX,0000H
+      MOV BX,000AH
+
+ UP2: MOV DX,0000H
+      DIV BX
+      ADD DX,30H
+      PUSH DX
+      INC CX
+      CMP AX,0000H
+      JNZ UP2
+
+ UP3: POP DX
+      MOV AH,02H
+      INT 21H
+      LOOP UP3
+
+      RET
+DISPLAY ENDP
+     
+CODE ENDS
+      END START

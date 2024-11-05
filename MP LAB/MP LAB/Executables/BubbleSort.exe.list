@@ -1,0 +1,97 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+BubbleSort.exe -- emu8086 assembler version: 4.08  
+ 
+[ 10/17/2024  --  1:54:53 PM ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]    0000: ??                                    MOV BX,0200H
+[   2]        :                                       ;Let's insert the 8-bit unsigned 10 numbers we want from 0700:0200.
+[   3]    0003: ??                                    MOV BYTE PTR [bx],55h
+[   4]    0006: ??                                    MOV BYTE PTR [bx+1],32H
+[   5]    000A: ??                                    MOV BYTE PTR [bx+2],54H
+[   6]    000E: ??                                    MOV BYTE PTR [bx+3],11H
+[   7]    0012: ??                                    MOV BYTE PTR [bx+4],47H
+[   8]    0016: ??                                    MOV BYTE PTR [bx+5],33H
+[   9]    001A: ??                                    MOV BYTE PTR [bx+6],75H
+[  10]    001E: ??                                    MOV BYTE PTR [bx+7],01H
+[  11]    0022: ??                                    MOV BYTE PTR [bx+8],5FH
+[  12]    0026: ??                                    MOV BYTE PTR [bx+9],23H
+[  13]        :                                       
+[  14]        :                                       
+[  15]        :                                       org 100h             ;offset addresses of commands
+[  16]        :                                       
+[  17]        :                                       
+[  18]    0100: BB 00 02                              MOV BX,0200H
+[  19]    0103: C6 07 55                              MOV SI,0             ;The register to be used in the inner loop iteration
+[  20]    0106: C6 47 01                              MOV DI,0             ;The register to be used in outer loop iteration
+[  21]        :                                       
+[  22]    0109:                                       innerloop:
+[  23]        :                                       
+[  24]    0109: 32 C6                                 MOV DL,[BX+SI]       ;register to hold the smallest number
+[  25]    010B: 47 02 54                              MOV AL,[BX+SI+1]     ;Gets the corresponding byte at base address 0700:0200 (indexed with SI+1)
+[  26]        :                                       
+[  27]    010E: C6 47                                 CMP AL,DL            ;If the value of the al register is greater than or equal to dl,
+[  28]    0110: 03 11                                 JAE @IF              ;if al >= dl (cf=0) go to if block
+[  29]    0112: C6 47                                 JB @ELSE             ;if al < dl (cf=1) go to else block
+[  30]        :                                       
+[  31]    0114:                                       @IF:                 ;if block
+[  32]    0114: 04 47                                 MOV [BX+SI],DL       ;If al is greater than dl, there is no need to swap
+[  33]    0116: C6 47 05                              MOV [BX+SI+1],AL     ; because they are already sorted among themselves.
+[  34]    0119: 33                                    INC SI               ;For iteration, increase the register by 1 (si=si+1)
+[  35]        :                                       
+[  36]    011A: C6 47 06                              CMP SI,9             ;Is si equal to 9?
+[  37]    011D: 75 C6                                 JNZ innerloop        ;(zf=0) enter the inner loop
+[  38]        :                                       
+[  39]    011F: 47 07                                 LOOP outerloop       ;(zf=1) enter the outerloop
+[  40]        :                                       
+[  41]    0121:                                       @ELSE:               ;else block
+[  42]    0121: 01 C6                                 MOV [BX+SI],AL       ;values are swapped in the same regions in memory
+[  43]    0123: 47 08 5F                              MOV [BX+SI+1],DL
+[  44]    0126: C6 47                                 MOV CL,AL            ;swap for registers
+[  45]    0128: 09 23                                 MOV AL,DL
+[  46]    012A: BB 00                                 MOV DL,CL
+[  47]    012C: 02                                    INC SI               ;increment register by 1 for iteration(si=si+1)
+[  48]        :                                       
+[  49]    012D: BE 00 00                              CMP SI,9             ;Is si equal to 9?
+[  50]    0130: BF 00                                 JNZ innerloop        ;(zf=0) enter the inner loop
+[  51]        :                                       
+[  52]    0132: 00 8A                                 LOOP outerloop       ;(zf=1) enter the outerloop
+[  53]        :                                       
+[  54]        :                                       
+[  55]    0134:                                       outerloop:
+[  56]    0134: 10                                    INC DI               ;
+[  57]    0135: 8A 40 01                              MOV SI,0             ;si is reset to be able to reorder
+[  58]    0138: 3A C2 73                              CMP DI,9             ;has the loop reached the end of its step (di=9)
+[  59]    013B: 02 72                                 JNZ innerloop        ;If di is not equal to 9, enter the inner loop and sort again
+[  60]        :                                       
+[  61]        :                                       ; Print sorted numbers
+[  62]    013D: 0D 88 10                              MOV CX, 10           ; Counter for 10 numbers
+[  63]    0140: 88 40 01                              MOV SI, 0            ; Reset SI to start of array
+[  64]        :                                       
+[  65]    0143:                                       print_loop:
+[  66]    0143: 46 83                                 MOV DL, [BX+SI]      ; Load number into DL
+[  67]    0145: FE 09 75                              ADD DL, 30h          ; Convert to ASCII
+[  68]    0148: EA E2                                 MOV AH, 02h          ; DOS function: print character
+[  69]    014A: 13 88                                 INT 21h              ; Call DOS interrupt
+[  70]        :                                       
+[  71]    014C: 00 88                                 MOV DL, 20h          ; ASCII for space
+[  72]    014E: 50 01                                 MOV AH, 02h          ; DOS function: print character
+[  73]    0150: 8A C8                                 INT 21h              ; Call DOS interrupt
+[  74]        :                                       
+[  75]    0152: 8A                                    INC SI               ; Move to next number
+[  76]    0153: C2 8A                                 LOOP print_loop      ; Repeat for all 10 numbers
+[  77]        :                                       
+[  78]    0155: D1                                    HLT                  ;STOP after printing
+[  79]        :                                       
+ 
+===================================================================================================
+ 
+
+
+
+
+===================================================================================================
